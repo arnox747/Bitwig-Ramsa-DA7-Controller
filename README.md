@@ -13,6 +13,8 @@ The script expects the DA7 to send MIDI Control Change (CC) messages for its fad
 
 ## Main controls
 
+![Ramsa DA7 Bitwig Controller Layout](./images/RamsaDA7.png)
+
 ### Faders 1–8: track volume
 
 - Control the volume of the eight tracks in the current Bitwig track bank.
@@ -91,27 +93,13 @@ The script listens for these exact MMC-style SysEx messages:
 
 | DA7 navigation action | SysEx bytes | In Mixer Mode | In Device Mode |
 |---|---|---|---|
-| Left | `F0 7F 00 06 05 F7` | Select previous cursor track | Select previous device |
-| Right | `F0 7F 00 06 04 F7` | Select next cursor track | Select next device |
-| Up | `F0 7F 00 06 03 F7` | Scroll to previous track-bank page | Select previous remote-control page |
-| Down | `F0 7F 00 06 01 F7` or `F0 7F 00 06 09 F7` | Scroll to next track-bank page | Select next remote-control page |
-| Mode toggle | `F0 7F 00 06 06 F7` | Enter Device Mode | Return to Mixer Mode |
+| Left  | Select previous cursor track | Select previous device |
+| Right  | Select next cursor track | Select next device |
+| Up  | Scroll to previous track-bank page | Select previous remote-control page |
+| Down | Scroll to next track-bank page | Select next remote-control page |
+| Mode toggle | Enter Device Mode | Return to Mixer Mode |
 
 The script also calls `refreshSurface()` after navigation so the faders are sent updated positions.
-
-### Transport
-
-The script maps CC messages to Bitwig transport actions:
-
-| Action | CC number |
-|---|---:|
-| Rewind | 110 |
-| Fast-forward | 111 |
-| Stop | 112 |
-| Play | 113 |
-| Record | 114 |
-
-Transport actions trigger when the received value is considered “on” (default threshold: 64). Transport CC releases are consumed so they do not accidentally fall through to other mappings.
 
 ## Required Ramsa DA7 configuration
 
@@ -125,11 +113,6 @@ The DA7 must send the CC numbers expected by the script. In the DA7's **MIDI Rem
 | Mute buttons 9–16 | 41–48 | Reset the auxiliary/device parameter under each fader |
 | Solo buttons 1–8 | 50–57 | Track solo |
 | Solo button 9 | 58 | Toggle Pan / Pan + Sends mode |
-| Rewind | 110 | Bitwig rewind |
-| Fast-forward | 111 | Bitwig fast-forward |
-| Stop | 112 | Bitwig stop |
-| Play | 113 | Bitwig play |
-| Record | 114 | Bitwig record |
 
 **Important:** CC 41–48 is the eight-button range actually handled by the code (`CC_AUX_MUTE_FIRST = 41` plus eight controls). The opening comment in the script says `CC 41–47`, which omits the eighth control; configure **41–48** for the full set of reset buttons.
 
@@ -141,25 +124,6 @@ The default is MIDI channel index `0`, which is MIDI **Channel 1** in the usual 
 - Ensure Bitwig's controller input/output ports point to the DA7's MIDI input and output.
 - If the DA7 uses another channel, change `CONFIG.MIDI_CHANNEL` in the script to the corresponding zero-based channel index (`0`–`15`). Set it to `-1` to accept CC messages on all input channels. Output feedback still uses the configured output channel; with `-1`, the script outputs on Channel 1.
 
-### Button behavior
-
-The default script setting is:
-
-```js
-BUTTONS_ARE_LATCHING: true
-```
-
-This assumes the DA7's button CC values alternate between 127 and 0 on successive presses. With this setting, both values are treated as a press event; this is needed for a latching button that sends only one message per press.
-
-If the DA7 instead sends 127 when pressed and 0 when released, change this setting to `false`. Otherwise, the release message may be interpreted as another press.
-
-Mute and solo state is interpreted using:
-
-```js
-BUTTON_ON_THRESHOLD: 64
-```
-
-Values of 64–127 are treated as “on”; values below 64 are “off.” The script's mute and solo logic uses the received state to set the corresponding Bitwig state. Test the DA7's actual button-message behavior with a MIDI monitor if a button seems to respond only every other press or behaves inverted.
 
 ### Fader feedback and MIDI output
 
@@ -175,8 +139,12 @@ The script uses a 7-bit value range (0–127). It avoids resending unchanged val
 
 1. **Save the script** as `RamsaDA7.control.js`.
 2. **Place it in Bitwig's user controller-script directory.** On macOS, this is typically under the Bitwig Studio user directory in `Documents/Bitwig Studio/Controller Scripts/`; create a folder such as `Ramsa DA7` and put the file inside. If your Bitwig version uses a different user-data location, use that version's Controller Scripts directory.
+![My Bitwig script location](./images/bitiwg-script-location.png)
+
 3. **Restart Bitwig Studio** or refresh the controller-script list if your version supports it.
 4. Open **Settings → Controllers** and add the **Ramsa DA7** controller if it appears in the available controller list.
+![My Bitwig controller folder layout](./images/bitwig-generic-controller.png)
+
 5. Select the DA7's MIDI input and MIDI output ports for the controller.
 6. Configure the DA7 CC assignments according to the tables above, and verify it is transmitting on MIDI Channel 1 unless the script has been changed.
 7. Confirm the DA7 can receive MIDI feedback from Bitwig.
@@ -195,22 +163,19 @@ These settings are defined near the top of `RamsaDA7.control.js`:
 | `CC_AUX_MUTE_FIRST` | `41` | Start CC for reset buttons 9–16 |
 | `CC_SOLO_FIRST` | `50` | Start CC for solo buttons 1–8 |
 | `CC_AUX_MODE_TOGGLE` | `58` | Solo 9 mode-toggle CC |
-| `CC_TRANSPORT_REWIND` | `110` | Rewind CC; set to `-1` to disable |
-| `CC_TRANSPORT_FORWARD` | `111` | Fast-forward CC; set to `-1` to disable |
-| `CC_TRANSPORT_STOP` | `112` | Stop CC; set to `-1` to disable |
-| `CC_TRANSPORT_PLAY` | `113` | Play CC; set to `-1` to disable |
-| `CC_TRANSPORT_RECORD` | `114` | Record CC; set to `-1` to disable |
-| `FEEDBACK_BLOCK_MS` | `200` | Fader feedback suppression window after a physical move |
-| `SELECT_TRACK_ON_FADER_TOUCH` | `true` | Select the corresponding track when a volume/pan fader is moved |
-| `BUTTON_ON_THRESHOLD` | `64` | Threshold for interpreting button state as on |
-| `BUTTONS_ARE_LATCHING` | `true` | Treat every button CC message as a press for latching DA7 buttons |
+
+On the Ramsa DA7, you will set these values using these two pages:
+![My Bitwig controller folder layout](./images/RamsaDA7-controller-tracks.png)
+
+Make sure that you're in 'EDIT' mode, so that entering a control will bring up its configuration page:
+![My Bitwig controller folder layout](./images/RamsaDA7-controller-track-config.png)
 
 The controller's track bank has eight channels and follows Bitwig's cursor track. The code also creates a scene bank and enables clip-launcher indication on the first track's clip slots, but it does not define a dedicated set of clip-launch buttons.
 
 ## Troubleshooting
 
 ### Faders move but Bitwig parameters do not change
-- Check that the DA7 CC numbers match the table.
+- Check that the DA7 CC numbers match the table ranges and values.
 - Check that the DA7 is transmitting on Channel 1, or adjust `MIDI_CHANNEL`.
 - Confirm the correct DA7 MIDI input port is selected in Bitwig.
 - Confirm the fader's current mode: Pan mode, Pan + Sends mode, or Device Mode.
