@@ -7,9 +7,9 @@
 
 ## Overview
 
-This Bitwig Studio controller script uses the Ramsa DA7 as a physical control surface eight-track bank at a time. It connects the DA7's MIDI controls to Bitwig's mixer, track sends, selected device remote controls, and transport.
+**The Ramsa DA7 Bitwig Studio controller script provides bidirectional feedback and control of mixer volume, pan, sends and device remote controls.**
 
-The script expects the DA7 to send MIDI Control Change (CC) messages for its faders and buttons, and those require some CC configuration. It also sends MIDI CC feedback back to the DA7 so motorized faders and button LEDs can reflect Bitwig's current state.
+The script expects the DA7 to send MIDI CC messages for its faders and buttons, and those require CC configuration on the DA7. It also sends MIDI CC feedback back to the DA7 so motorized faders and button LEDs reflect Bitwig's values.
 
 This script will turn your Ramsa DA7 into an extremely powerful Bitwig control surface.
 
