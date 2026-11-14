@@ -15,7 +15,7 @@ This script will turn your Ramsa DA7 into an extremely powerful Bitwig control s
 
 ## TLDR; For experienced users
 If you know your way around the DA7 and Bitwig, getting this running is a somple two-step process:
- 1. Copy the 'RamsaDA7.control.js' script to Bitwig's "Controller Scripts" folder, add the DA7 as a generic controller, and set its MIDI in/out channels.
+ 1. Copy the 'RamsaDA7.control.js' script to Bitwig's "Controller Scripts" folder, add the Ramsa DA7 controller, and set its MIDI in/out channels.
  2. Configure the DA7's MIDI RMT pages with the corresonding CC values.
 
 
@@ -178,7 +178,7 @@ The controller's track bank has eight channels and follows Bitwig's cursor track
 
 ### DA7 is not controlling Bitwig
 - MIDI channels and CC configuration are the most likely culprit. Use a tool like [Protokol](https://hexler.net/protokol) to confirm that your computer is receiving correct CC messages from the DA7.
-- If correct MIDI CCs are received, do you have a generic DA7 controller in Bitwig, configured with correct MIDI channels?
+- If correct MIDI CCs are received, do you have a Ramsa DA7 controller in Bitwig configured with correct MIDI channels? If not, Bitwig isn't reading/finding the controller script file.
 - If all of the above are true, and still no luck, restart Bitwig, reboot, and retrace your steps.
 
 ### Faders move but Bitwig parameters do not change
