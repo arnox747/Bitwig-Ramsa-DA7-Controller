@@ -7,11 +7,25 @@
 
 ## Overview
 
-This Bitwig Studio controller script uses the Ramsa DA7 as a physical control surface for an eight-track bank. It connects the DA7's MIDI controls to Bitwig's mixer, track sends, selected device remote controls, and transport.
+This Bitwig Studio controller script uses the Ramsa DA7 as a physical control surface eight-track bank at a time. It connects the DA7's MIDI controls to Bitwig's mixer, track sends, selected device remote controls, and transport.
 
-The script expects the DA7 to send MIDI Control Change (CC) messages for its faders and buttons, and specific MMC-style System Exclusive (SysEx) messages for navigation and mode switching. It also sends MIDI CC feedback back to the DA7 so motorized faders and button LEDs can reflect Bitwig's current state.
+The script expects the DA7 to send MIDI Control Change (CC) messages for its faders and buttons, and those require some CC configuration. It also sends MIDI CC feedback back to the DA7 so motorized faders and button LEDs can reflect Bitwig's current state.
+
+This script will turn your Ramsa DA7 into an extremely powerful Bitwig control surface.
+
+## TLDR; For experienced users
+If you know your way around the DA7 and Bitwig, getting this running is a somple two-step process:
+ 1. Copy the 'RamsaDA7.control.js' script to Bitwig's "Controller Scripts" folder, add the DA7 as a generic controller, and set its MIDI in/out channels.
+ 2. Configure the DA7's MIDI RMT pages with the corresonding CC values.
+
 
 ## Main controls
+
+### IMPORTANT
+
+- Set the DA7 to **MMC** mode (*use the MMC/CURSOR button*) and **CUSTOM/MIDI** layer.
+- Use the **CURSOR/MIDI** button to switch Bitwig control between **MIXER** and **DEVICE** mode.
+
 
 ![Ramsa DA7 Bitwig Controller Layout](./images/RamsaDA7.png)
 
@@ -30,27 +44,15 @@ Faders 9–16 have two mixer modes, selected with the DA7's **Solo 9** button (C
 
 | DA7 fader | Bitwig control |
 |---|---|
-| 9 | Pan of track 1 in the current bank |
-| 10 | Pan of track 2 |
-| 11 | Pan of track 3 |
-| 12 | Pan of track 4 |
-| 13 | Pan of track 5 |
-| 14 | Pan of track 6 |
-| 15 | Pan of track 7 |
-| 16 | Pan of track 8 |
+| 9 - 16 | Pan of track 1 - 8 in the current bank |
+
 
 **Pan + Sends mode**
 
 | DA7 fader | Bitwig control |
 |---|---|
 | 9 | Pan of the selected/cursor track |
-| 10 | Send 1 of the selected/cursor track |
-| 11 | Send 2 |
-| 12 | Send 3 |
-| 13 | Send 4 |
-| 14 | Send 5 |
-| 15 | Send 6 |
-| 16 | Send 7 |
+| 10 - 16 | Send 1 - 7 of the selected/cursor track |
 
 The script exposes up to seven sends in this mode. A send fader only controls a send that exists on the selected track; the controller does not create sends or assign them to destinations.
 
@@ -81,7 +83,7 @@ These eight buttons are used as **reset buttons**, not as track mutes:
 
 Device Mode maps faders 9–16 to the first eight remote-control parameters of the selected Bitwig device's currently selected remote-controls page.
 
-- Toggle Device Mode using the DA7's MMC-style SysEx **mode-toggle** message (`F0 7F 00 06 06 F7`).
+- Toggle Device Mode using the DA7's MMC/CURSOR button.
 - In Device Mode, faders 1–8 still control track volume.
 - The auxiliary reset buttons reset device parameters.
 - The script asks Bitwig to show/toggle the device panel when entering Device Mode, and the mixer panel when leaving it.
@@ -173,6 +175,11 @@ Make sure that you're in 'EDIT' mode, so that entering a control will bring up i
 The controller's track bank has eight channels and follows Bitwig's cursor track. The code also creates a scene bank and enables clip-launcher indication on the first track's clip slots, but it does not define a dedicated set of clip-launch buttons.
 
 ## Troubleshooting
+
+### DA7 is not controlling Bitwig
+- MIDI channels and CC configuration are the most likely culprit. Use a tool like [Protokol](https://hexler.net/protokol) to confirm that your computer is receiving correct CC messages from the DA7.
+- If correct MIDI CCs are received, do you have a generic DA7 controller in Bitwig, configured with correct MIDI channels?
+- If all of the above are true, and still no luck, restart Bitwig, reboot, and retrace your steps.
 
 ### Faders move but Bitwig parameters do not change
 - Check that the DA7 CC numbers match the table ranges and values.
